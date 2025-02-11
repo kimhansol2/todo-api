@@ -1,13 +1,13 @@
 import express from "express"; //웹 서버 구축하는데 사용
 import mongoose from "mongoose"; // mongoDB와 연결하여 데이터를 쉽게 다룰 수 있도록 도와줌
 import Task from "./task.js"; // mongoDB에서 사용할 tasks컬렉션과 그 스키마를 다룸
-import { DATABASE_URL, PORT } from "./env.js"; //환경 변수로 데이터베이스 연결 url, 포트 번호 가져옴
-import data from "./seedData.js"; //seedData에서 불러온 샘플 데이터를 가져옴
+import * as dotenv from "dotenv";
 
+dotenv.config();
 const app = express(); // express 애플리케이션을 생성
 app.use(express.json()); // 클라이언트에서 보내는 JSON 형식의 데이터를 자동으로 파싱해서 req.body에 저장할 수 있도록 설정
 
-await mongoose.connect(DATABASE_URL); // mongoDB에 연결함 이후 쿼리나 데이터 작업을 망고 DB에서 수행할 수 있다.
+await mongoose.connect(process.env.DATABASE_URL); // mongoDB에 연결함 이후 쿼리나 데이터 작업을 망고 DB에서 수행할 수 있다.
 
 function asyncHandler(handler) {
   // 비동기 함수를 실행하는 wrapper함수
@@ -73,10 +73,10 @@ app.patch(
       Object.keys(data).forEach((key) => {
         task[key] = data[key]; //data 객체의 키들을 통해 task를 수정
       });
-      await task.save();
-      res.send(task);
+      await task.save(); //수정된 task를 MongoDB에 저장
+      res.send(task); //수정된 task를 클라이언트에 응답으로 보냄
     } else {
-      res.status(404).send({ message: "Cannot find given id" });
+      res.status(404).send({ message: "Cannot find given id" }); //task가 없으면 404 응답과 함께 메시지 반환
     }
   })
 );
@@ -84,13 +84,15 @@ app.patch(
 app.delete(
   "/tasks/:id",
   asyncHandler(async (req, res) => {
-    const task = await Task.findByIdAndDelete(req.params.id);
+    const task = await Task.findByIdAndDelete(req.params.id); //:id로 전달된 ID를 통해 task를 삭제
     if (task) {
-      res.sendStatus(200);
+      res.sendStatus(200); //task가 삭제되면 200 응답을 반환
     } else {
-      res.status(404).send({ message: "Cannot find given id" });
+      res.status(404).send({ message: "Cannot find given id" }); // task가 없으면 404 응답과 함께 메시지 반환
     }
   })
 );
 
-app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+app.listen(process.env.PORT, () =>
+  console.log(`Server started on port ${process.env.PORT}`)
+); //app.listen(PORT)는 Express 애플리케이션을 시작하고 지정된 포트에서 서버를 실행

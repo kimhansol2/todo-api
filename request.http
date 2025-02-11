@@ -10,9 +10,22 @@ Content-Type: application/json
 
 
 ###
-GET http://localhost:3000/tasks?sort=oldest&count=2
+GET http://localhost:3000/tasks
 
 
 
 ###
-GET http://localhost:3000/tasks/67aacf7eb1d5e1d90b345759
+GET http://localhost:3000/tasks/67a
+
+
+###
+PATCH  http://localhost:3000/tasks/67aadb80059
+Content-Type: application/json
+
+{
+  "title": "Express",
+  "description": "Express를 활용해 내 로컬에서 웹 서버 구축하기"
+}
+
+###
+DELETE http://localhost:3000/tasks/67aadb80059c6badf4e30c40
